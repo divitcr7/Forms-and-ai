@@ -1,5 +1,3 @@
-# Clone the repository
-git clone https://github.com/Sreeman45/formAI
 
 # Navigate into the project directory
 cd formAI
