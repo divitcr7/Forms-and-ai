@@ -1,0 +1,19 @@
+# Clone the repository
+git clone https://github.com/Sreeman45/formAI
+
+# Navigate into the project directory
+cd formAI
+
+# Install dependencies using pnpm
+pnpm install
+
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+CLERK_JWT_ISSUER_DOMAIN=
+CONVEX_DEPLOYMENT=
+NEXT_PUBLIC_CONVEX_URL=
+GOOGLE_GENERATIVE_AI_API_KEY=
