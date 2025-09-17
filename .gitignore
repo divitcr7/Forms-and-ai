@@ -51,3 +51,5 @@ next-env.d.ts
 .cursor
 # clerk configuration (can include secrets)
 /.clerk/
+
+/src/generated/prisma
