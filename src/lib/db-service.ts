@@ -226,6 +226,8 @@ export class DatabaseService {
   private static mapQuestionType(type: string) {
     const typeMap: Record<string, string> = {
       text: "TEXT",
+      shorttext: "TEXT",
+      longtext: "TEXTAREA",
       email: "EMAIL",
       number: "NUMBER",
       textarea: "TEXTAREA",
