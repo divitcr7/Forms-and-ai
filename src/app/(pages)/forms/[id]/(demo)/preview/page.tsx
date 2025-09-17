@@ -85,15 +85,23 @@ export default async function FormPreviewPage({
     };
 
     // Transform questions to match the expected format
-    const transformedQuestions = form.questions.map((q) => ({
-      _id: q.id,
-      content: q.content,
-      label: q.content, // Some components might expect label
-      type: mapFieldType(q.type) as any,
-      required: q.required,
-      order: q.order,
-      placeholder: "Enter your answer",
-    }));
+    const transformedQuestions = form.questions.map(
+      (q: {
+        id: string;
+        content: string;
+        type: string;
+        required: boolean;
+        order: number;
+      }) => ({
+        _id: q.id,
+        content: q.content,
+        label: q.content, // Some components might expect label
+        type: mapFieldType(q.type) as any,
+        required: q.required,
+        order: q.order,
+        placeholder: "Enter your answer",
+      })
+    );
 
     return (
       <FullscreenFormRenderer
