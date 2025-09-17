@@ -9,6 +9,23 @@ interface FormPreviewPageProps {
   }>;
 }
 
+function mapFieldType(dbType: string): string {
+  const typeMap: Record<string, string> = {
+    TEXT: "shortText",
+    EMAIL: "email",
+    NUMBER: "number",
+    TEXTAREA: "longText",
+    SELECT: "select",
+    RADIO: "radio",
+    CHECKBOX: "checkbox",
+    DATE: "calendar",
+    TIME: "time",
+    URL: "url",
+    PHONE: "phone",
+  };
+  return typeMap[dbType] || "shortText";
+}
+
 export async function generateMetadata({
   params,
 }: FormPreviewPageProps): Promise<Metadata> {
@@ -65,11 +82,11 @@ export default async function FormPreviewPage({
     };
 
     // Transform questions to match the expected format
-    const transformedQuestions = form.questions.map(q => ({
+    const transformedQuestions = form.questions.map((q: any) => ({
       _id: q.id,
       content: q.content,
       label: q.content, // Some components might expect label
-      type: q.type,
+      type: mapFieldType(q.type),
       required: q.required,
       order: q.order,
       placeholder: "Enter your answer",

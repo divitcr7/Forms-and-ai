@@ -1,8 +1,5 @@
 "use client";
 
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { useState, useEffect, useRef } from "react";
 import { FormPreviewChat } from "@/components/forms/playground/form-preview-chat";
@@ -24,7 +21,6 @@ export default function FullscreenFormRenderer({
 }: FullscreenFormRendererProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const submitResponse = useMutation(api.responses.submitResponse);
   const startTimeRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -41,7 +37,6 @@ export default function FullscreenFormRenderer({
 
     try {
       if (isPreview) {
-    
         toast.success(
           "Preview mode: Form submission simulated. No data saved."
         );
@@ -50,17 +45,25 @@ export default function FullscreenFormRenderer({
 
       const formattedAnswers = Object.entries(answers).map(
         ([fieldId, value]) => ({
-          fieldId: fieldId as Id<"formFields">,
+          questionId: fieldId,
           value: value,
         })
       );
 
-      await submitResponse({
-        formId: form._id,
-        answers: formattedAnswers,
-        respondentEmail: null,
-        startedAt: startTimeRef.current || new Date().toISOString(),
+      // Submit to our API
+      const response = await fetch(`/api/forms/${form._id}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: formattedAnswers,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
 
       toast.success("Form submitted successfully");
     } catch (error) {
