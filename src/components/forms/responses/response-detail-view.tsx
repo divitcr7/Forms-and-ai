@@ -1,26 +1,55 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion } from "motion/react";
 import { User, Clock, FileText } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 interface ResponseDetailViewProps {
-  responseId: Id<"responses">;
+  responseId: string;
+  formId: string;
 }
 
-export function ResponseDetailView({ responseId }: ResponseDetailViewProps) {
-  const responseDetails = useQuery(api.responses.getResponseDetails, {
-    responseId,
-  });
+export function ResponseDetailView({
+  responseId,
+  formId,
+}: ResponseDetailViewProps) {
+  const [responseDetails, setResponseDetails] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const isLoading = responseDetails === undefined;
+  useEffect(() => {
+    const fetchResponseDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/forms/${formId}/responses`);
+        if (response.ok) {
+          const data = await response.json();
+          const selectedResponse = data.responses.find(
+            (r: any) => r._id === responseId
+          );
+          if (selectedResponse) {
+            // Transform the data to match the expected format
+            setResponseDetails({
+              ...selectedResponse,
+              enhancedAnswers: selectedResponse.answers || [],
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching response details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (responseId && formId) {
+      fetchResponseDetails();
+    }
+  }, [responseId, formId]);
 
   if (isLoading) {
     return (

@@ -1,10 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   InboxIcon,
   BarChart,
@@ -23,16 +20,44 @@ import { ResponseDetailView } from "./response-detail-view";
 import { ResponseShareEmptyState } from "./response-share-empty-state";
 
 interface ResponsesListProps {
-  formId: Id<"forms">;
+  formId: string;
 }
 
 export function ResponsesList({ formId }: ResponsesListProps) {
-  const responses = useQuery(api.responses.getFormResponses, { formId });
-  const analytics = useQuery(api.responses.getFormAnalytics, { formId });
-  const fields = useQuery(api.formFields.getFormFields, { formId });
-  const [selectedResponseId, setSelectedResponseId] =
-    useState<Id<"responses"> | null>(null);
-  const isLoading = responses === undefined || analytics === undefined;
+  const [responses, setResponses] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [fields, setFields] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedResponseId, setSelectedResponseId] = useState<string | null>(
+    null
+  );
+
+  const fetchResponses = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/forms/${formId}/responses`);
+      if (response.ok) {
+        const data = await response.json();
+        setResponses(data.responses || []);
+        setAnalytics(data.analytics || {});
+
+        // Fetch form fields
+        const formResponse = await fetch(`/api/forms/${formId}`);
+        if (formResponse.ok) {
+          const formData = await formResponse.json();
+          setFields(formData.questions || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching responses:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formId]);
+
+  useEffect(() => {
+    fetchResponses();
+  }, [fetchResponses]);
 
   const handleDownload = () => {
     if (responses && fields) {
@@ -183,7 +208,10 @@ export function ResponsesList({ formId }: ResponsesListProps) {
         {/* Response detail with analytics - wider right pane (80% width) */}
         <div className="md:col-span-4">
           {selectedResponseId ? (
-            <ResponseDetailView responseId={selectedResponseId} />
+            <ResponseDetailView
+              responseId={selectedResponseId}
+              formId={formId}
+            />
           ) : (
             <Card className="h-full flex items-center justify-center text-center">
               <CardContent>
