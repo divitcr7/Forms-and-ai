@@ -24,7 +24,7 @@ export async function generateFormQuestions(
     });
 
     let result;
-    
+
     try {
       // Try the primary model first
       result = await generateObject({
@@ -41,8 +41,13 @@ export async function generateFormQuestions(
         temperature: 0.7,
       });
     } catch (primaryError) {
-      console.log("Primary model failed, trying fallback model...");
-      
+      console.log(
+        "Primary model failed, trying fallback model...",
+        primaryError instanceof Error
+          ? primaryError.message
+          : String(primaryError)
+      );
+
       // Fallback to a more stable model if the primary fails
       result = await generateObject({
         model: google("gemini-1.5-flash", {
