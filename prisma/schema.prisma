@@ -1,15 +1,108 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkId     String   @unique
+  email       String?
+  firstName   String?
+  lastName    String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  forms       Form[]
+  
+  @@map("users")
+}
+
+model Form {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  slug          String   @unique
+  originalPrompt String?
+  isPublished   Boolean  @default(false)
+  isArchived    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  publishedAt   DateTime?
+  archivedAt    DateTime?
+
+  // Relations
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions     FormQuestion[]
+  responses     FormResponse[]
+
+  @@map("forms")
+}
+
+model FormQuestion {
+  id       String            @id @default(cuid())
+  content  String
+  type     FormQuestionType
+  required Boolean           @default(false)
+  order    Int
+  options  String[]          @default([]) // For multiple choice questions
+
+  // Relations
+  formId   String
+  form     Form              @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers  FormAnswer[]
+
+  @@map("form_questions")
+}
+
+model FormResponse {
+  id          String   @id @default(cuid())
+  submittedAt DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+
+  // Relations
+  formId      String
+  form        Form         @relation(fields: [formId], references: [id], onDelete: Cascade)
+  answers     FormAnswer[]
+
+  @@map("form_responses")
+}
+
+model FormAnswer {
+  id       String @id @default(cuid())
+  value    String
+
+  // Relations
+  questionId String
+  question   FormQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  responseId String
+  response   FormResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@map("form_answers")
+}
+
+enum FormQuestionType {
+  TEXT
+  EMAIL
+  NUMBER
+  TEXTAREA
+  SELECT
+  RADIO
+  CHECKBOX
+  DATE
+  TIME
+  URL
+  PHONE
 }
