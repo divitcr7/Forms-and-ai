@@ -29,12 +29,12 @@ export function Footer() {
                 title="Contact for inquiries or sponsorship"
               >
                 <span className="underline px-1.5 py-0.5 rounded-md text-orange-600">
-                  sreemanlingala333@gmail.com
+                  divit.patidar@gmail.com
                 </span>
               </a>
             </div>
             <a
-              href="https://github.com/Sreeman45"
+              href="https://github.com/divitcr7"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-500 text-sm underline hover:text-gray-300 dark:hover:text-gray-300 transition-colors"

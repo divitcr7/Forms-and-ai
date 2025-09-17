@@ -4,8 +4,12 @@ import { DatabaseService } from "@/lib/db-service";
 
 export async function GET(req: NextRequest) {
   try {
+    console.log("Forms list API called");
     const { userId } = getAuth(req);
+    console.log("Auth userId:", userId);
+
     if (!userId) {
+      console.log("No userId found - user not authenticated");
       return NextResponse.json(
         { error: "Unauthorized", details: "User not authenticated" },
         { status: 401 }
@@ -13,10 +17,14 @@ export async function GET(req: NextRequest) {
     }
 
     // Ensure user exists in database
+    console.log("Creating/updating user:", userId);
     const user = await DatabaseService.createOrUpdateUser(userId, {});
+    console.log("User found/created:", user);
 
     // Get user's forms
+    console.log("Fetching forms for user:", user.id);
     const forms = await DatabaseService.getUserForms(user.id);
+    console.log("Forms found:", forms.length);
 
     // Transform the data to match the expected format
     const transformedForms = forms.map((form) => ({

@@ -29,7 +29,6 @@ export function FormsTable() {
   const [formToArchive, setFormToArchive] = React.useState<string | null>(null);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = React.useState(false);
 
-
   const navigateToFormEditPage = (formId: string) => {
     router.push(`/dashboard/forms/${formId}`);
   };
@@ -49,12 +48,17 @@ export function FormsTable() {
 
   const fetchForms = React.useCallback(async () => {
     try {
+      console.log("Fetching forms from API...");
       const response = await fetch("/api/forms/list");
+      console.log("Forms API response:", response.status, response.statusText);
+
       if (response.ok) {
         const formsData = await response.json();
+        console.log("Forms data received:", formsData);
         setForms(formsData);
       } else {
-        console.error("Failed to fetch forms");
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to fetch forms:", response.status, errorData);
       }
     } catch (error) {
       console.error("Error fetching forms:", error);

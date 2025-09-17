@@ -98,6 +98,9 @@ export default function CreateFormButton({ label }: Props) {
       // Redirect to the form page
       router.push(`/dashboard/forms/${formId}`);
 
+      // Refresh the page to update the forms list
+      router.refresh();
+
       // Close the modal
       setShowPromptModal(false);
     } catch (error) {
