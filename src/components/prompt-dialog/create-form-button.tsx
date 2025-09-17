@@ -44,7 +44,8 @@ export default function CreateFormButton({ label }: Props) {
         console.error("Form generation API error:", {
           status: response.status,
           statusText: response.statusText,
-          errorData
+          errorData,
+          url: response.url
         });
         
         // Provide more specific error messages based on status codes
@@ -73,6 +74,12 @@ export default function CreateFormButton({ label }: Props) {
 
       if (!saveResponse.ok) {
         const saveErrorData = await saveResponse.json().catch(() => ({}));
+        console.error("Form save API error:", {
+          status: saveResponse.status,
+          statusText: saveResponse.statusText,
+          saveErrorData,
+          url: saveResponse.url
+        });
         throw new Error(saveErrorData.error || "Failed to save form");
       }
 

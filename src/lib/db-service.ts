@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { FormGeneration } from "./schema";
+import { FormQuestionType } from "@prisma/client";
 
 export class DatabaseService {
   // User operations
@@ -213,20 +214,20 @@ export class DatabaseService {
     );
   }
 
-  private static mapQuestionType(type: string) {
-    const typeMap: Record<string, any> = {
-      text: "TEXT",
-      email: "EMAIL",
-      number: "NUMBER",
-      textarea: "TEXTAREA",
-      select: "SELECT",
-      radio: "RADIO",
-      checkbox: "CHECKBOX",
-      date: "DATE",
-      time: "TIME",
-      url: "URL",
-      phone: "PHONE",
+  private static mapQuestionType(type: string): FormQuestionType {
+    const typeMap: Record<string, FormQuestionType> = {
+      text: FormQuestionType.TEXT,
+      email: FormQuestionType.EMAIL,
+      number: FormQuestionType.NUMBER,
+      textarea: FormQuestionType.TEXTAREA,
+      select: FormQuestionType.SELECT,
+      radio: FormQuestionType.RADIO,
+      checkbox: FormQuestionType.CHECKBOX,
+      date: FormQuestionType.DATE,
+      time: FormQuestionType.TIME,
+      url: FormQuestionType.URL,
+      phone: FormQuestionType.PHONE,
     };
-    return typeMap[type.toLowerCase()] || "TEXT";
+    return typeMap[type.toLowerCase()] || FormQuestionType.TEXT;
   }
 }
