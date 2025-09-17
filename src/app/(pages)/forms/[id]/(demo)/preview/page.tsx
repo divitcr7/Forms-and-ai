@@ -1,7 +1,5 @@
 import { Metadata } from "next";
-import { fetchQuery } from "convex/nextjs";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { DatabaseService } from "@/lib/db-service";
 import FullscreenFormRenderer from "@/components/forms/public/fullscreen-form-renderer";
 import { BlankPage } from "@/components/fallbacks/blank-page";
 
@@ -15,10 +13,8 @@ export async function generateMetadata({
   params,
 }: FormPreviewPageProps): Promise<Metadata> {
   try {
-    const form = await fetchQuery(api.forms.getPublicForm, {
-      formId: (await params).id as Id<"forms">,
-      preview: true,
-    });
+    const formId = (await params).id;
+    const form = await DatabaseService.getFormByIdOrSlug(formId);
 
     if (!form) {
       return {
@@ -42,13 +38,10 @@ export async function generateMetadata({
 export default async function FormPreviewPage({
   params,
 }: FormPreviewPageProps) {
-  const formId = (await params).id as Id<"forms">;
+  const formId = (await params).id;
 
   try {
-    const form = await fetchQuery(api.forms.getPublicForm, {
-      formId,
-      preview: true,
-    });
+    const form = await DatabaseService.getFormByIdOrSlug(formId);
 
     if (!form) {
       return (
@@ -60,14 +53,32 @@ export default async function FormPreviewPage({
       );
     }
 
-    const formFields = await fetchQuery(api.formFields.getFormFields, {
-      formId,
-    });
+    // Transform the form data to match the expected format
+    const transformedForm = {
+      _id: form.id,
+      title: form.title,
+      description: form.description,
+      slug: form.slug,
+      status: form.isPublished ? "published" : "draft",
+      isPublished: form.isPublished,
+      createdAt: form.createdAt.toISOString(),
+    };
+
+    // Transform questions to match the expected format
+    const transformedQuestions = form.questions.map(q => ({
+      _id: q.id,
+      content: q.content,
+      label: q.content, // Some components might expect label
+      type: q.type,
+      required: q.required,
+      order: q.order,
+      placeholder: "Enter your answer",
+    }));
 
     return (
       <FullscreenFormRenderer
-        form={form}
-        formFields={formFields}
+        form={transformedForm as any}
+        formFields={transformedQuestions as any}
         isPreview={true}
       />
     );

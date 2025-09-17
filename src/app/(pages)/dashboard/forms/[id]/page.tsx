@@ -203,7 +203,7 @@ export default function FormPage() {
         )}
       </div>
 
-      <FormTabs form={form} formFields={form.questions} formId={formId} />
+      <FormTabs form={form} formFields={form.questions || []} formId={formId} />
     </div>
   );
 }

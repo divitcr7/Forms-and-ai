@@ -4,14 +4,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormEditorPanel } from "@/components/forms/playground/form-editor-panel";
 import { FormPreviewPanel } from "@/components/forms/playground/form-preview-panel";
 import { ResponsesList } from "@/components/forms/responses/responses-list";
-import { Id } from "@/convex/_generated/dataModel";
 import { useState } from "react";
 import { Form, FormField } from "@/lib/types";
 
 interface FormTabsProps {
   form: Form;
   formFields: FormField[];
-  formId: Id<"forms">;
+  formId: string;
 }
 
 const FORM_TABS = [

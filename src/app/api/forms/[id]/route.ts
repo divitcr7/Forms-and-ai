@@ -42,10 +42,17 @@ export async function GET(
       status: form.isPublished ? "published" : "draft",
       isPublished: form.isPublished,
       isArchived: form.isArchived,
-      createdAt: form.createdAt,
-      updatedAt: form.updatedAt,
-      publishedAt: form.publishedAt,
-      questions: form.questions,
+      createdAt: form.createdAt.toISOString(),
+      updatedAt: form.updatedAt.toISOString(),
+      publishedAt: form.publishedAt?.toISOString(),
+      questions: form.questions.map((q) => ({
+        _id: q.id,
+        content: q.content,
+        type: q.type as any,
+        required: q.required,
+        order: q.order,
+        options: q.options,
+      })),
       _count: {
         responses: 0, // We'll add this later when we implement response counting
       },
