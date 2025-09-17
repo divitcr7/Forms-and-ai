@@ -6,8 +6,7 @@ import { Plus } from "lucide-react";
 import { AddPromptModal } from "./add-prompt-modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+// Removed Convex imports - now using direct API calls
 import { FormGeneration } from "@/lib/schema";
 
 type Props = {
