@@ -85,6 +85,16 @@ export class DatabaseService {
     });
   }
 
+  static async getFormByIdOrSlug(identifier: string) {
+    // Try ID first
+    let form = await this.getFormById(identifier);
+    if (!form) {
+      // Try slug if ID lookup failed
+      form = await this.getFormBySlug(identifier);
+    }
+    return form;
+  }
+
   static async getUserForms(userId: string) {
     return await prisma.form.findMany({
       where: {

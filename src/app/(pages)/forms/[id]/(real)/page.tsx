@@ -1,7 +1,5 @@
 import { Metadata } from "next";
-import { fetchQuery } from "convex/nextjs";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { DatabaseService } from "@/lib/db-service";
 import FullscreenFormRenderer from "@/components/forms/public/fullscreen-form-renderer";
 import { BlankPage } from "@/components/fallbacks/blank-page";
 
@@ -15,9 +13,8 @@ export async function generateMetadata({
   params,
 }: FormPageProps): Promise<Metadata> {
   try {
-    const form = await fetchQuery(api.forms.getPublicForm, {
-      formId: (await params).id as Id<"forms">,
-    });
+    const formId = (await params).id;
+    const form = await DatabaseService.getFormByIdOrSlug(formId);
 
     if (!form) {
       return {

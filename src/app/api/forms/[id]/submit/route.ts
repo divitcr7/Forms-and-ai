@@ -11,13 +11,17 @@ const submitFormSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { slug } = params;
+    const { id } = params;
     
-    // Get form by slug
-    const form = await DatabaseService.getFormBySlug(slug);
+    // Get form by ID (can be either form ID or slug)
+    let form = await DatabaseService.getFormById(id);
+    if (!form) {
+      // Try to get by slug if ID lookup failed
+      form = await DatabaseService.getFormBySlug(id);
+    }
     if (!form) {
       return NextResponse.json(
         { error: "Form not found" },
