@@ -18,7 +18,7 @@ export default function CreateFormButton({ label }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const saveFormMutation = useMutation(api.forms.createForm);
+  // No longer using Convex mutations
 
   const handleSubmitPrompt = async ({
     prompt,
@@ -59,13 +59,24 @@ export default function CreateFormButton({ label }: Props) {
 
       const formData = (await response.json()) as FormGeneration;
 
-      // save to convex
-      const formId = await saveFormMutation({
-        title: formData.title,
-        description: formData.description,
-        questions: formData.questions,
-        originalPrompt: prompt,
+      // Save form to database via API
+      const saveResponse = await fetch("/api/forms/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          originalPrompt: prompt,
+        }),
       });
+
+      if (!saveResponse.ok) {
+        const saveErrorData = await saveResponse.json().catch(() => ({}));
+        throw new Error(saveErrorData.error || "Failed to save form");
+      }
+
+      const { formId } = await saveResponse.json();
 
       toast.success("Form created successfully!");
 
