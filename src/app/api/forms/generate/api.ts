@@ -5,9 +5,9 @@ import { FormGeneration, formGenerationSchema } from "@/lib/schema";
 
 /**
  * Generates form questions based on the provided prompt using Google's Gemini model
- * @param prompt 
- * @param topics 
- * @returns 
+ * @param prompt
+ * @param topics
+ * @returns
  */
 export async function generateFormQuestions(
   prompt: string,
@@ -23,19 +23,41 @@ export async function generateFormQuestions(
       topics,
     });
 
-    const result = await generateObject({
-      model: google("gemini-2.0-flash-lite-preview-02-05", {
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE",
-          },
-        ],
-      }),
-      schema: formGenerationSchema,
-      prompt: formGenerationPrompt,
-      temperature: 0.7,
-    });
+    let result;
+    
+    try {
+      // Try the primary model first
+      result = await generateObject({
+        model: google("gemini-2.0-flash-lite-preview-02-05", {
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+          ],
+        }),
+        schema: formGenerationSchema,
+        prompt: formGenerationPrompt,
+        temperature: 0.7,
+      });
+    } catch (primaryError) {
+      console.log("Primary model failed, trying fallback model...");
+      
+      // Fallback to a more stable model if the primary fails
+      result = await generateObject({
+        model: google("gemini-1.5-flash", {
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE",
+            },
+          ],
+        }),
+        schema: formGenerationSchema,
+        prompt: formGenerationPrompt,
+        temperature: 0.7,
+      });
+    }
 
     const formData = result.object;
 
@@ -50,6 +72,38 @@ export async function generateFormQuestions(
     };
   } catch (error) {
     console.error("Error generating form questions:", error);
+
+    // Handle specific API errors
+    if (error instanceof Error) {
+      // Check for overload/rate limit errors
+      if (
+        error.message.includes("overloaded") ||
+        error.message.includes("503")
+      ) {
+        throw new Error(
+          "AI service is temporarily busy. Please wait a moment and try again."
+        );
+      }
+      // Check for quota/billing errors
+      if (
+        error.message.includes("quota") ||
+        error.message.includes("billing")
+      ) {
+        throw new Error(
+          "AI service quota exceeded. Please try again later or contact support."
+        );
+      }
+      // Check for API key errors
+      if (
+        error.message.includes("API key") ||
+        error.message.includes("authentication")
+      ) {
+        throw new Error(
+          "AI service configuration error. Please contact support."
+        );
+      }
+    }
+
     throw new Error(
       "Failed to generate form questions. Please try again later."
     );
