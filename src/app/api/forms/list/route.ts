@@ -27,21 +27,33 @@ export async function GET(req: NextRequest) {
     console.log("Forms found:", forms.length);
 
     // Transform the data to match the expected format
-    const transformedForms = forms.map((form) => ({
-      _id: form.id,
-      title: form.title,
-      description: form.description,
-      slug: form.slug,
-      isPublished: form.isPublished,
-      isArchived: form.isArchived,
-      createdAt: form.createdAt,
-      updatedAt: form.updatedAt,
-      publishedAt: form.publishedAt,
-      _count: {
-        responses: form._count.responses,
-      },
-      questions: form.questions,
-    }));
+    const transformedForms = forms.map(
+      (form: {
+        id: string;
+        title: string;
+        description: string | null;
+        slug: string;
+        isPublished: boolean;
+        isArchived: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        publishedAt: Date | null;
+      }) => ({
+        _id: form.id,
+        title: form.title,
+        description: form.description,
+        slug: form.slug,
+        isPublished: form.isPublished,
+        isArchived: form.isArchived,
+        createdAt: form.createdAt,
+        updatedAt: form.updatedAt,
+        publishedAt: form.publishedAt,
+        _count: {
+          responses: form._count.responses,
+        },
+        questions: form.questions,
+      })
+    );
 
     return NextResponse.json(transformedForms);
   } catch (error) {

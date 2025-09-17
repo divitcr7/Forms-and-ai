@@ -19,20 +19,32 @@ export async function GET(req: NextRequest) {
     const forms = await DatabaseService.getUserForms(user.id, true); // true for archived
 
     // Transform to match frontend expectations
-    const transformedForms = forms.map((form) => ({
-      _id: form.id,
-      title: form.title,
-      description: form.description,
-      slug: form.slug,
-      isPublished: form.isPublished,
-      isArchived: form.isArchived,
-      createdAt: form.createdAt.toISOString(),
-      updatedAt: form.updatedAt.toISOString(),
-      publishedAt: form.publishedAt?.toISOString(),
-      _count: {
-        responses: 0, // Placeholder
-      },
-    }));
+    const transformedForms = forms.map(
+      (form: {
+        id: string;
+        title: string;
+        description: string | null;
+        slug: string;
+        isPublished: boolean;
+        isArchived: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        archivedAt: Date | null;
+      }) => ({
+        _id: form.id,
+        title: form.title,
+        description: form.description,
+        slug: form.slug,
+        isPublished: form.isPublished,
+        isArchived: form.isArchived,
+        createdAt: form.createdAt.toISOString(),
+        updatedAt: form.updatedAt.toISOString(),
+        publishedAt: form.publishedAt?.toISOString(),
+        _count: {
+          responses: 0, // Placeholder
+        },
+      })
+    );
 
     return NextResponse.json(transformedForms);
   } catch (error) {

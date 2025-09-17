@@ -69,11 +69,13 @@ export async function generateFormQuestions(
     return {
       title: formData.title,
       description: formData.description,
-      questions: formData.questions.map((q) => ({
-        content: q.content,
-        type: q.type,
-        required: q.required,
-      })),
+      questions: formData.questions.map(
+        (q: { content: string; type: string; required: boolean }) => ({
+          content: q.content,
+          type: q.type,
+          required: q.required,
+        })
+      ),
     };
   } catch (error) {
     console.error("Error generating form questions:", error);

@@ -45,14 +45,23 @@ export async function GET(
       createdAt: form.createdAt.toISOString(),
       updatedAt: form.updatedAt.toISOString(),
       publishedAt: form.publishedAt?.toISOString(),
-      questions: form.questions.map((q) => ({
-        _id: q.id,
-        content: q.content,
-        type: q.type,
-        required: q.required,
-        order: q.order,
-        options: q.options,
-      })),
+      questions: form.questions.map(
+        (q: {
+          id: string;
+          content: string;
+          type: string;
+          required: boolean;
+          order: number;
+          options: string | null;
+        }) => ({
+          _id: q.id,
+          content: q.content,
+          type: q.type,
+          required: q.required,
+          order: q.order,
+          options: q.options,
+        })
+      ),
       _count: {
         responses: 0, // We'll add this later when we implement response counting
       },
