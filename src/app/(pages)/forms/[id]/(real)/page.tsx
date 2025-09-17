@@ -84,19 +84,22 @@ export default async function FormPage({ params }: FormPageProps) {
     const transformedForm = {
       _id: form.id,
       title: form.title,
-      description: form.description,
+      description: form.description || undefined,
       slug: form.slug,
       status: form.isPublished ? "published" : "draft",
       isPublished: form.isPublished,
+      isArchived: form.isArchived,
       createdAt: form.createdAt.toISOString(),
+      updatedAt: form.updatedAt.toISOString(),
+      publishedAt: form.publishedAt?.toISOString(),
     };
 
     // Transform questions to match the expected format
-    const transformedQuestions = form.questions.map((q: any) => ({
+    const transformedQuestions = form.questions.map((q) => ({
       _id: q.id,
       content: q.content,
       label: q.content, // Some components might expect label
-      type: mapFieldType(q.type),
+      type: mapFieldType(q.type) as any,
       required: q.required,
       order: q.order,
       placeholder: "Enter your answer",
@@ -104,8 +107,8 @@ export default async function FormPage({ params }: FormPageProps) {
 
     return (
       <FullscreenFormRenderer
-        form={transformedForm as any}
-        formFields={transformedQuestions as any}
+        form={transformedForm}
+        formFields={transformedQuestions}
         isPreview={false}
       />
     );

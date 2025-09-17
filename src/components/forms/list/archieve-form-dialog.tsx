@@ -1,11 +1,9 @@
 "use client";
 
 import React from "react";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   AlertDialog,
@@ -21,7 +19,7 @@ import {
 interface ArchiveFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  formId: Id<"forms"> | null;
+  formId: string | null;
   formTitle: string;
   onComplete: () => void;
 }
@@ -33,7 +31,7 @@ export function ArchiveFormDialog({
   formTitle,
   onComplete,
 }: ArchiveFormDialogProps) {
-  const archiveForm = useMutation(api.forms.archieveForm);
+  const router = useRouter();
   const [isArchiving, setIsArchiving] = React.useState(false);
 
   const handleArchiveConfirm = async () => {
@@ -42,9 +40,17 @@ export function ArchiveFormDialog({
     setIsArchiving(true);
 
     try {
-      await archiveForm({ formId });
+      const response = await fetch(`/api/forms/${formId}/archive`, {
+        method: "PATCH",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to archive form");
+      }
+
       toast.success("Form archived successfully!");
       onComplete();
+      router.refresh();
     } catch (error) {
       console.error("Failed to archive form:", error);
       toast.error("Failed to archive form. Please try again.");
@@ -57,24 +63,27 @@ export function ArchiveFormDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            Archive Form
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+            </div>
+            <AlertDialogTitle>Archive Form</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="mt-3">
             Are you sure you want to archive{" "}
-            <span className="font-semibold">&quot;{formTitle}&quot;</span>? This form will
-            be removed from your forms list but its data will be preserved.
+            <span className="font-semibold">{formTitle}</span>? This form will
+            be moved to your archive and will no longer be accessible via the
+            public link.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isArchiving}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleArchiveConfirm}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             disabled={isArchiving}
+            className="bg-destructive hover:bg-destructive/90"
           >
-            {isArchiving ? "Archiving..." : "Archive"}
+            {isArchiving ? "Archiving..." : "Archive Form"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

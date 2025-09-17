@@ -1,21 +1,39 @@
 "use client";
 
 import * as React from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { ArchivedFormsHeader } from "./archived-forms-header";
 import { ArchivedFormsDataTable } from "./archived-forms-data-table";
 import { UnarchiveFormDialog } from "./unarchive-form-dialog";
+import { Form } from "@/lib/types";
 
 export function ArchivedFormsTable() {
-  const archivedForms = useQuery(api.forms.listArchivedForms) || [];
-  const [formToUnarchive, setFormToUnarchive] =
-    React.useState<Id<"forms"> | null>(null);
+  const [archivedForms, setArchivedForms] = React.useState<Form[]>([]);
+  const [_loading, setLoading] = React.useState(true);
+  const [formToUnarchive, setFormToUnarchive] = React.useState<string | null>(
+    null
+  );
   const [isUnarchiveDialogOpen, setIsUnarchiveDialogOpen] =
     React.useState(false);
 
-  const handleUnarchiveRequest = (formId: Id<"forms">, e: React.MouseEvent) => {
+  React.useEffect(() => {
+    const fetchArchivedForms = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/forms/archived");
+        if (response.ok) {
+          const data = await response.json();
+          setArchivedForms(data);
+        }
+      } catch (error) {
+        console.error("Error fetching archived forms:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArchivedForms();
+  }, []);
+
+  const handleUnarchiveRequest = (formId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click
     setFormToUnarchive(formId);
     setIsUnarchiveDialogOpen(true);

@@ -3,30 +3,25 @@ import { DatabaseService } from "@/lib/db-service";
 import { z } from "zod";
 
 const submitFormSchema = z.object({
-  answers: z.array(z.object({
-    questionId: z.string(),
-    value: z.string(),
-  })),
+  answers: z.array(
+    z.object({
+      questionId: z.string(),
+      value: z.string(),
+    })
+  ),
 });
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
-    
+    const { id } = await params;
+
     // Get form by ID (can be either form ID or slug)
-    let form = await DatabaseService.getFormById(id);
+    const form = await DatabaseService.getFormByIdOrSlug(id);
     if (!form) {
-      // Try to get by slug if ID lookup failed
-      form = await DatabaseService.getFormBySlug(id);
-    }
-    if (!form) {
-      return NextResponse.json(
-        { error: "Form not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
     if (!form.isPublished) {
@@ -48,10 +43,11 @@ export async function POST(
     }
 
     // Get client metadata
-    const ipAddress = req.headers.get('x-forwarded-for') || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
-    const userAgent = req.headers.get('user-agent') || 'unknown';
+    const ipAddress =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
+    const userAgent = req.headers.get("user-agent") || "unknown";
 
     // Create the response
     const response = await DatabaseService.createFormResponse(

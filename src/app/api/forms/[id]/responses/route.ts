@@ -4,7 +4,7 @@ import { DatabaseService } from "@/lib/db-service";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = getAuth(req);
@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get the form to check ownership
     const form = await DatabaseService.getFormByIdOrSlug(id);

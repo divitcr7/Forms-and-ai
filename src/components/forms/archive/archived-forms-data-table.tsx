@@ -16,12 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import { Id } from "@/convex/_generated/dataModel";
 import { Form } from "@/lib/types";
 
 interface ArchivedFormsDataTableProps {
   forms: Form[];
-  onUnarchiveRequest: (formId: Id<"forms">, e: React.MouseEvent) => void;
+  onUnarchiveRequest: (formId: string, e: React.MouseEvent) => void;
 }
 
 export function ArchivedFormsDataTable({

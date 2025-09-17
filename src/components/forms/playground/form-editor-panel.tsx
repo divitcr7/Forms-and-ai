@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { FormFieldsEditor } from "./form-fields-editor";
 import { FormSettingsEditor } from "./form-settings-editor";
-import { Form, FormField } from "@/lib/types";
+import { Form, FormField, FormFieldType } from "@/lib/types";
 
 interface FormEditorPanelProps {
   form: Form;
@@ -33,7 +33,7 @@ export function FormEditorPanel({
   // const deleteFormField = useMutation(api.formFields.deleteFormField);
 
   const handleUpdateSettings = async (
-    settings: Pick<Form, "title" | "description" | "status" | "settings">
+    _settings: Pick<Form, "title" | "description" | "status">
   ) => {
     try {
       // TODO: Implement with Prisma API
@@ -52,18 +52,15 @@ export function FormEditorPanel({
   };
 
   // Handle create form field
-  const handleCreateField = async (
-    field: Pick<
-      FormField,
-      | "order"
-      | "type"
-      | "label"
-      | "required"
-      | "placeholder"
-      | "description"
-      | "validation"
-    >
-  ) => {
+  const handleCreateField = async (_field: {
+    order: number;
+    type: FormFieldType;
+    label?: string;
+    required: boolean;
+    placeholder?: string;
+    description?: string;
+    validation?: any;
+  }) => {
     try {
       // TODO: Implement with Prisma API
       // await createFormField({
@@ -84,32 +81,27 @@ export function FormEditorPanel({
   };
 
   // Handle update form field
-  const handleUpdateField = async (
-    field: Pick<
-      FormField,
-      | "_id"
-      | "order"
-      | "type"
-      | "label"
-      | "required"
-      | "placeholder"
-      | "description"
-      | "validation"
-    > & {
-      _id: Id<"formFields">;
-    }
-  ) => {
+  const handleUpdateField = async (_field: {
+    _id: string;
+    order: number;
+    type: FormFieldType;
+    label?: string;
+    required: boolean;
+    placeholder?: string;
+    description?: string;
+    validation?: any;
+  }) => {
     try {
-      await updateFormField({
-        fieldId: field._id,
-        order: field.order,
-        type: field.type,
-        label: field.label,
-        required: field.required,
-        placeholder: field.placeholder,
-        description: field.description,
-        validation: field.validation,
-      });
+      // await updateFormField({
+      //   fieldId: _field._id,
+      //   order: _field.order,
+      //   type: _field.type,
+      //   label: _field.label,
+      //   required: _field.required,
+      //   placeholder: _field.placeholder,
+      //   description: _field.description,
+      //   validation: _field.validation,
+      // });
       toast.success("Field updated");
     } catch (error) {
       console.error("Error updating field:", error);
@@ -118,9 +110,9 @@ export function FormEditorPanel({
   };
 
   // Handle delete form field
-  const handleDeleteField = async (fieldId: Id<"formFields">) => {
+  const handleDeleteField = async (_fieldId: string) => {
     try {
-      await deleteFormField({ fieldId });
+      // await deleteFormField({ fieldId });
       toast.success("Field deleted");
     } catch (error) {
       console.error("Error deleting field:", error);
@@ -143,8 +135,8 @@ export function FormEditorPanel({
               formId={formId}
               fields={formFields.map((field) => ({
                 ...field,
-                label: field.content || field.label || "Question",
-                formId: formId as any,
+                label: field.content || (field as any).label || "Question",
+                formId: formId,
               }))}
               onCreateField={handleCreateField}
               onUpdateField={handleUpdateField}

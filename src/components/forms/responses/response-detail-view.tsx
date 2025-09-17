@@ -18,7 +18,28 @@ export function ResponseDetailView({
   responseId,
   formId,
 }: ResponseDetailViewProps) {
-  const [responseDetails, setResponseDetails] = useState<any>(null);
+  const [responseDetails, setResponseDetails] = useState<{
+    _id: string;
+    formId: string;
+    respondentEmail: string;
+    submittedAt: string;
+    answers: Array<{
+      questionId: string;
+      value: string;
+      question: {
+        content: string;
+        type: string;
+      };
+    }>;
+    enhancedAnswers: Array<{
+      value: string;
+      question: {
+        content: string;
+      };
+    }>;
+    ipAddress?: string;
+    userAgent?: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +50,7 @@ export function ResponseDetailView({
         if (response.ok) {
           const data = await response.json();
           const selectedResponse = data.responses.find(
-            (r: any) => r._id === responseId
+            (r: { _id: string }) => r._id === responseId
           );
           if (selectedResponse) {
             // Transform the data to match the expected format
@@ -74,10 +95,9 @@ export function ResponseDetailView({
 
   // Calculate completion metrics
   const questionsCount = responseDetails.enhancedAnswers.length;
-  const answeredCount = responseDetails.enhancedAnswers.filter(
+  const _answeredCount = responseDetails.enhancedAnswers.filter(
     (a) => a.value
   ).length;
-  const completionRate = Math.round((answeredCount / questionsCount) * 100);
 
   return (
     <div className="space-y-6">
@@ -109,13 +129,13 @@ export function ResponseDetailView({
         <CardContent className="space-y-6">
           {responseDetails.enhancedAnswers.map((answer, index) => (
             <motion.div
-              key={answer.fieldId}
+              key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               className="space-y-2"
             >
-              <h3 className="font-medium text-sm">{answer.fieldLabel}</h3>
+              <h3 className="font-medium text-sm">{answer.question.content}</h3>
               <div className="p-3 bg-muted rounded-md">
                 {answer.value || (
                   <span className="text-muted-foreground italic">

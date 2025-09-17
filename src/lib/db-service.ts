@@ -45,7 +45,7 @@ export class DatabaseService {
         questions: {
           create: formData.questions.map((question, index) => ({
             content: question.content,
-            type: this.mapQuestionType(question.type),
+            type: this.mapQuestionType(question.type) as any,
             required: question.required,
             order: index,
           })),
@@ -81,6 +81,12 @@ export class DatabaseService {
         questions: {
           orderBy: { order: "asc" },
         },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
       },
     });
   }
@@ -95,11 +101,11 @@ export class DatabaseService {
     return form;
   }
 
-  static async getUserForms(userId: string) {
+  static async getUserForms(userId: string, archived: boolean = false) {
     return await prisma.form.findMany({
       where: {
         userId,
-        isArchived: false,
+        isArchived: archived,
       },
       include: {
         questions: true,
@@ -141,6 +147,16 @@ export class DatabaseService {
       data: {
         isArchived: true,
         archivedAt: new Date(),
+      },
+    });
+  }
+
+  static async unarchiveForm(id: string) {
+    return await prisma.form.update({
+      where: { id },
+      data: {
+        isArchived: false,
+        archivedAt: null,
       },
     });
   }

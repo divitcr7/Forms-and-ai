@@ -24,9 +24,33 @@ interface ResponsesListProps {
 }
 
 export function ResponsesList({ formId }: ResponsesListProps) {
-  const [responses, setResponses] = useState<any[]>([]);
-  const [analytics, setAnalytics] = useState<any>(null);
-  const [fields, setFields] = useState<any[]>([]);
+  const [responses, setResponses] = useState<
+    Array<{
+      _id: string;
+      formId: string;
+      respondentEmail: string;
+      submittedAt: string;
+      answers: Array<{
+        questionId: string;
+        value: string;
+      }>;
+    }>
+  >([]);
+  const [analytics, setAnalytics] = useState<{
+    completionRate: number;
+    responseRate: string;
+    totalResponses: number;
+  } | null>(null);
+  const [fields, setFields] = useState<
+    Array<{
+      _id: string;
+      content: string;
+      type: string;
+      required: boolean;
+      order: number;
+      options?: string;
+    }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedResponseId, setSelectedResponseId] = useState<string | null>(
     null
@@ -61,7 +85,7 @@ export function ResponsesList({ formId }: ResponsesListProps) {
 
   const handleDownload = () => {
     if (responses && fields) {
-      downloadResponsesXlsx(formId, responses, fields);
+      downloadResponsesXlsx(formId, responses, fields as any);
     }
   };
 

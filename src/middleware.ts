@@ -5,7 +5,7 @@ const isProtectedRoute = createRouteMatcher([
   "/forms(.*)/preview(.*)",
 ]);
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+// const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {

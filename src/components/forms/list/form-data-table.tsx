@@ -19,13 +19,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import { Id } from "@/convex/_generated/dataModel";
 import { Form } from "@/lib/types";
 
 interface FormDataTableProps {
   forms: (Form & { responseCount: number })[];
-  onRowClick: (formId: Id<"forms">) => void;
-  onArchiveRequest: (formId: Id<"forms">, e: React.MouseEvent) => void;
+  onRowClick: (formId: string) => void;
+  onArchiveRequest: (formId: string, e: React.MouseEvent) => void;
 }
 
 export function FormDataTable({
@@ -124,13 +123,13 @@ export function FormDataTable({
 
 interface FormRowActionsProps {
   form: Form;
-  onArchiveRequest: (formId: Id<"forms">, e: React.MouseEvent) => void;
+  onArchiveRequest: (formId: string, e: React.MouseEvent) => void;
 }
 
 function FormRowActions({ form, onArchiveRequest }: FormRowActionsProps) {
   const router = useRouter();
 
-  const copyShareLink = (formId: Id<"forms">) => {
+  const copyShareLink = (formId: string) => {
     const shareLink = `${window.location.origin}/forms/${formId}`;
     navigator.clipboard.writeText(shareLink);
 

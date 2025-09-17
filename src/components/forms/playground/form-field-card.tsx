@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
 import { motion } from "motion/react";
+import { FormField } from "@/lib/types";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -27,14 +27,13 @@ import {
   Trash,
   X,
 } from "lucide-react";
-import { FormField, FormFieldType } from "@/lib/types";
 
 interface FormFieldCardProps {
-  field: FormField;
+  field: FormField & { label?: string; placeholder?: string };
   isEditing: boolean;
   onToggleEdit: () => void;
-  onUpdate: (field: FormField) => Promise<void>;
-  onDelete: (fieldId: Id<"formFields">) => Promise<void>;
+  onUpdate: (field: any) => Promise<void>;
+  onDelete: (fieldId: string) => Promise<void>;
 }
 
 export function FormFieldCard({
@@ -44,7 +43,14 @@ export function FormFieldCard({
   onUpdate,
   onDelete,
 }: FormFieldCardProps) {
-  const [editedField, setEditedField] = useState<FormField>(field);
+  const [editedField, setEditedField] = useState<
+    FormField & {
+      label?: string;
+      placeholder?: string;
+      description?: string;
+      validation?: any;
+    }
+  >(field);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -64,18 +70,34 @@ export function FormFieldCard({
     await onDelete(field._id);
   };
 
-  const fieldTypeLabels: Record<FormFieldType, string> = {
+  const fieldTypeLabels: Record<string, string> = {
     shortText: "Short Text",
     longText: "Long Text",
     number: "Number",
     email: "Email",
     phone: "Phone",
     calendar: "Calendar",
+    TEXT: "Text",
+    TEXTAREA: "Text Area",
+    NUMBER: "Number",
+    EMAIL: "Email",
+    PHONE: "Phone",
+    DATE: "Date",
+    SELECT: "Select",
+    RADIO: "Radio",
+    CHECKBOX: "Checkbox",
+    TIME: "Time",
+    URL: "URL",
   };
 
-  const needsValidation = ["shortText", "longText", "number"].includes(
-    editedField.type
-  );
+  const needsValidation = [
+    "shortText",
+    "longText",
+    "number",
+    "TEXT",
+    "TEXTAREA",
+    "NUMBER",
+  ].includes(editedField.type as string);
 
   return (
     <>
@@ -155,7 +177,7 @@ export function FormFieldCard({
                   <Label htmlFor={`type-${field._id}`}>Field Type</Label>
                   <Select
                     value={editedField.type}
-                    onValueChange={(value: FormFieldType) =>
+                    onValueChange={(value: any) =>
                       setEditedField({ ...editedField, type: value })
                     }
                   >
@@ -205,7 +227,8 @@ export function FormFieldCard({
               {needsValidation && (
                 <div className="border rounded-md p-4 space-y-4">
                   <h4 className="text-sm font-medium">Validation Options</h4>
-                  {editedField.type === "number" ? (
+                  {(editedField.type as string) === "number" ||
+                  (editedField.type as string) === "NUMBER" ? (
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor={`min-${field._id}`}>

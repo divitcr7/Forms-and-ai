@@ -4,7 +4,7 @@ import { DatabaseService } from "@/lib/db-service";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = getAuth(req);
@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get form by ID or slug
     const form = await DatabaseService.getFormByIdOrSlug(id);
@@ -48,7 +48,7 @@ export async function GET(
       questions: form.questions.map((q) => ({
         _id: q.id,
         content: q.content,
-        type: q.type as any,
+        type: q.type,
         required: q.required,
         order: q.order,
         options: q.options,
@@ -70,7 +70,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = getAuth(req);
@@ -81,7 +81,7 @@ export async function PATCH(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     // Get form by ID or slug

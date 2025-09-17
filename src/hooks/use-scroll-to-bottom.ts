@@ -27,7 +27,7 @@ export function useScrollToBottom(deps: React.DependencyList = []) {
     if (scrollContainer) {
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
-  }, deps);
+  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
   return scrollRef;
 }

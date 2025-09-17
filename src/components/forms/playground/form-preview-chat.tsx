@@ -19,7 +19,9 @@ interface Message {
 interface FormPreviewChatProps {
   title: string;
   description: string;
-  fields: FormField[];
+  fields: Array<
+    FormField & { label?: string; description?: string; placeholder?: string }
+  >;
   onComplete?: (answers: Record<string, string>) => void;
   fullscreen?: boolean;
   onProgressChange?: (progress: number) => void;
@@ -93,10 +95,10 @@ export function FormPreviewChat({
       source: "system",
       content: (
         <div>
-          <p>{field.label}</p>
-          {field.description && (
+          <p>{(field as any).label || field.content}</p>
+          {(field as any).description && (
             <p className="text-muted-foreground text-sm mt-1">
-              {field.description}
+              {(field as any).description}
             </p>
           )}
         </div>
@@ -111,7 +113,7 @@ export function FormPreviewChat({
 
     // Format date if the field is a calendar field
     let displayValue = userInput;
-    if (currentField.type === "calendar" && userInput) {
+    if ((currentField.type as string) === "calendar" && userInput) {
       displayValue = formatChatDate(userInput);
     }
 

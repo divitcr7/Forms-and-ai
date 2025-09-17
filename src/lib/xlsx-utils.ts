@@ -1,12 +1,11 @@
 import * as XLSX from "xlsx";
-import { Id } from "@/convex/_generated/dataModel";
 import { Response, FormField } from "./types";
 
 /**
  * Generate and trigger download of XLSX for given responses and fields
  */
 export function downloadResponsesXlsx(
-  formId: Id<"forms">,
+  formId: string,
   responses: Response[],
   fields: FormField[]
 ) {
@@ -14,23 +13,20 @@ export function downloadResponsesXlsx(
     "Respondent",
     "Submitted At",
     "Time Taken",
-    ...fields.map((f) => f.label),
+    ...fields.map((f) => (f as any).label || f.content),
   ];
   const wsData: string[][] = [headers];
 
   if (responses.length > 0) {
     for (const resp of responses) {
-      const timeTaken =
-        resp.responseTimeMs != null
-          ? `${Math.floor(resp.responseTimeMs / 60000)}m ${Math.floor((resp.responseTimeMs % 60000) / 1000)}s`
-          : "-";
+      const timeTaken = "-"; // TODO: Implement response time tracking
       const row = [
-        resp.respondentEmail || "Anonymous",
+        "Anonymous", // TODO: Implement email collection if needed
         new Date(resp.submittedAt).toLocaleString(),
         timeTaken,
       ];
       for (const field of fields) {
-        const ans = resp.answers.find((a) => a.fieldId === field._id);
+        const ans = resp.answers.find((a) => a.questionId === field._id);
         row.push(ans?.value != null ? String(ans.value) : "");
       }
       wsData.push(row);

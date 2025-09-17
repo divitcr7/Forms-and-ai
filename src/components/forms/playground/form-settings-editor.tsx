@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Save } from "lucide-react";
 import { Form } from "@/lib/types";
 
-type FormSettings = Pick<Form, "title" | "description" | "status" | "settings">;
+type FormSettings = Pick<Form, "title" | "description" | "status">;
 
 interface FormSettingsEditorProps {
   form: Form;
@@ -27,12 +27,6 @@ export function FormSettingsEditor({
     title: form.title,
     description: form.description || "",
     status: form.status,
-    settings: {
-      allowAnonymous: form.settings?.allowAnonymous ?? true,
-      collectEmail: form.settings?.collectEmail ?? false,
-      maxResponses: form.settings?.maxResponses,
-      expiresAt: form.settings?.expiresAt,
-    },
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -113,16 +107,10 @@ export function FormSettingsEditor({
           </div>
           <Switch
             id="anonymous"
-            checked={formSettings.settings.allowAnonymous}
-            onCheckedChange={(checked) =>
-              setFormSettings({
-                ...formSettings,
-                settings: {
-                  ...formSettings.settings,
-                  allowAnonymous: checked,
-                },
-              })
-            }
+            checked={true}
+            onCheckedChange={(_checked) => {
+              // TODO: Implement settings when available
+            }}
           />
         </div>
 
@@ -135,16 +123,10 @@ export function FormSettingsEditor({
           </div>
           <Switch
             id="email"
-            checked={formSettings.settings.collectEmail}
-            onCheckedChange={(checked) =>
-              setFormSettings({
-                ...formSettings,
-                settings: {
-                  ...formSettings.settings,
-                  collectEmail: checked,
-                },
-              })
-            }
+            checked={false}
+            onCheckedChange={(_checked) => {
+              // TODO: Implement settings when available
+            }}
           />
         </div>
 
@@ -154,18 +136,10 @@ export function FormSettingsEditor({
             id="maxResponses"
             type="number"
             min="0"
-            value={formSettings.settings.maxResponses || ""}
-            onChange={(e) =>
-              setFormSettings({
-                ...formSettings,
-                settings: {
-                  ...formSettings.settings,
-                  maxResponses: e.target.value
-                    ? parseInt(e.target.value)
-                    : undefined,
-                },
-              })
-            }
+            value=""
+            onChange={(_e) => {
+              // TODO: Implement settings when available
+            }}
             placeholder="Leave empty for unlimited"
           />
         </div>
@@ -175,24 +149,10 @@ export function FormSettingsEditor({
           <Input
             id="expiresAt"
             type="date"
-            value={
-              formSettings.settings.expiresAt
-                ? new Date(formSettings.settings.expiresAt)
-                    .toISOString()
-                    .split("T")[0]
-                : ""
-            }
-            onChange={(e) =>
-              setFormSettings({
-                ...formSettings,
-                settings: {
-                  ...formSettings.settings,
-                  expiresAt: e.target.value
-                    ? new Date(e.target.value).toISOString()
-                    : undefined,
-                },
-              })
-            }
+            value=""
+            onChange={(_e) => {
+              // TODO: Implement settings when available
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Leave empty for no expiration

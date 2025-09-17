@@ -10,19 +10,9 @@ import { toast } from "sonner";
 import { FormTabs } from "@/components/forms/tabs/form-tabs";
 import { PublishFormButton } from "@/components/forms/publish/publish-form-button";
 
-interface Form {
-  _id: string;
-  title: string;
-  description?: string;
-  slug: string;
-  status: string;
-  isPublished: boolean;
-  isArchived: boolean;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-  questions: any[];
-}
+import { Form as FormType } from "@/lib/types";
+
+type Form = FormType;
 
 export default function FormPage() {
   const router = useRouter();
@@ -80,7 +70,7 @@ export default function FormPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Form not found</h1>
           <p className="text-muted-foreground mt-2">
-            This form doesn't exist or you don't have access to it.
+            This form doesn&apos;t exist or you don&apos;t have access to it.
           </p>
           <Button
             className="mt-4"

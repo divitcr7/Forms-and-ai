@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Id } from "@/convex/_generated/dataModel";
 import { motion, AnimatePresence } from "motion/react";
 
 import { Button } from "@/components/ui/button";
@@ -11,16 +10,17 @@ import { FormFieldCard } from "./form-field-card";
 import { FormField } from "@/lib/types";
 
 interface FormFieldsEditorProps {
-  formId: Id<"forms">;
-  fields: FormField[];
-  onCreateField: (
-    field: Pick<
-      FormField,
-      "formId" | "order" | "type" | "label" | "required" | "placeholder"
-    >
-  ) => Promise<void>;
-  onUpdateField: (field: FormField) => Promise<void>;
-  onDeleteField: (fieldId: Id<"formFields">) => Promise<void>;
+  formId: string;
+  fields: Array<
+    FormField & {
+      label?: string;
+      placeholder?: string;
+      formId?: string;
+    }
+  >;
+  onCreateField: (field: any) => Promise<void>;
+  onUpdateField: (field: any) => Promise<void>;
+  onDeleteField: (fieldId: string) => Promise<void>;
 }
 
 export function FormFieldsEditor({
@@ -33,10 +33,7 @@ export function FormFieldsEditor({
   const [editingField, setEditingField] = useState<string | null>(null);
 
   const handleAddField = () => {
-    const newField: Pick<
-      FormField,
-      "formId" | "order" | "type" | "label" | "required" | "placeholder"
-    > = {
+    const newField = {
       formId,
       order: fields.length,
       type: "shortText",

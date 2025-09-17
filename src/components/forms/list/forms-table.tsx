@@ -5,21 +5,12 @@ import { useRouter } from "next/navigation";
 import { FormTableHeader } from "./form-table-header";
 import { FormDataTable } from "./form-data-table";
 import { ArchiveFormDialog } from "./archieve-form-dialog";
+import { Form as FormType } from "@/lib/types";
 
-interface Form {
-  _id: string;
-  title: string;
-  description?: string;
-  slug: string;
-  isPublished: boolean;
-  isArchived: boolean;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-  _count: {
+interface Form extends FormType {
+  _count?: {
     responses: number;
   };
-  questions: any[];
 }
 
 export function FormsTable() {
@@ -117,7 +108,11 @@ export function FormsTable() {
       <FormTableHeader />
 
       <FormDataTable
-        forms={forms}
+        forms={forms.map((form) => ({
+          ...form,
+          status: form.isPublished ? "published" : "draft",
+          responseCount: form._count?.responses || 0,
+        }))}
         onRowClick={navigateToFormEditPage}
         onArchiveRequest={handleArchiveRequest}
       />

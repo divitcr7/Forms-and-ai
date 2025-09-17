@@ -16,7 +16,14 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
-  currentField: FormField;
+  currentField: FormField & {
+    type: any;
+    placeholder?: string;
+    validation?: {
+      min?: number;
+      max?: number;
+    };
+  };
   currentFieldIndex: number;
   fieldsCount: number;
   onSubmit: (value: string) => void;

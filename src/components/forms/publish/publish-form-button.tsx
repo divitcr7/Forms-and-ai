@@ -9,12 +9,14 @@ interface PublishFormButtonProps {
   isPublished: boolean;
   onPublishToggle: () => Promise<void>;
   className?: string;
+  disabled?: boolean;
 }
 
 export function PublishFormButton({
   isPublished,
   onPublishToggle,
   className,
+  disabled,
 }: PublishFormButtonProps) {
   const [isPending, setIsPending] = React.useState(false);
 
@@ -38,7 +40,7 @@ export function PublishFormButton({
         "gap-2 transition-all",
         className
       )}
-      disabled={isPending}
+      disabled={disabled || isPending}
       onClick={handleClick}
     >
       {isPublished ? (

@@ -49,10 +49,10 @@ export async function POST(req: NextRequest) {
       "and data:",
       validationResult.data
     );
-    const form = await DatabaseService.createForm(
-      user.id,
-      validationResult.data
-    );
+    const form = await DatabaseService.createForm(user.id, {
+      ...validationResult.data,
+      description: validationResult.data.description || "",
+    } as any);
 
     return NextResponse.json({
       formId: form.id,

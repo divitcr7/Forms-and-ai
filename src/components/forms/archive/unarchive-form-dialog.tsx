@@ -1,11 +1,9 @@
 "use client";
 
 import React from "react";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { ArchiveRestore } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   AlertDialog,
@@ -21,7 +19,7 @@ import {
 interface UnarchiveFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  formId: Id<"forms"> | null;
+  formId: string | null;
   formTitle: string;
   onComplete: () => void;
 }
@@ -33,7 +31,7 @@ export function UnarchiveFormDialog({
   formTitle,
   onComplete,
 }: UnarchiveFormDialogProps) {
-  const unarchiveForm = useMutation(api.forms.unArchiveForm);
+  const router = useRouter();
   const [isUnarchiving, setIsUnarchiving] = React.useState(false);
 
   const handleUnarchiveConfirm = async () => {
@@ -42,9 +40,17 @@ export function UnarchiveFormDialog({
     setIsUnarchiving(true);
 
     try {
-      await unarchiveForm({ formId });
+      const response = await fetch(`/api/forms/${formId}/unarchive`, {
+        method: "PATCH",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to unarchive form");
+      }
+
       toast.success("Form restored successfully!");
       onComplete();
+      router.refresh();
     } catch (error) {
       console.error("Failed to restore form:", error);
       toast.error("Failed to restore form. Please try again.");
@@ -57,22 +63,24 @@ export function UnarchiveFormDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <ArchiveRestore className="h-5 w-5 text-primary" />
-            Restore Form
-          </AlertDialogTitle>
-          <AlertDialogDescription>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <ArchiveRestore className="h-5 w-5 text-primary" />
+            </div>
+            <AlertDialogTitle>Restore Form</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="mt-3">
             Are you sure you want to restore{" "}
-            <span className="font-semibold">&quot;{formTitle}&quot;</span>? This will make
-            the form visible in your forms list again as a draft.
+            <span className="font-semibold">{formTitle}</span>? The form will be
+            moved back to your active forms list.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isUnarchiving}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleUnarchiveConfirm}
-            className="bg-primary hover:bg-primary/90"
             disabled={isUnarchiving}
+            className="bg-primary hover:bg-primary/90"
           >
             {isUnarchiving ? "Restoring..." : "Restore Form"}
           </AlertDialogAction>
