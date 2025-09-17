@@ -72,7 +72,7 @@ export async function generateFormQuestions(
       questions: formData.questions.map(
         (q: { content: string; type: string; required: boolean }) => ({
           content: q.content,
-          type: q.type,
+          type: q.type as any,
           required: q.required,
         })
       ),

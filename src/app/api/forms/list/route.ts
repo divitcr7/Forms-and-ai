@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
         createdAt: Date;
         updatedAt: Date;
         publishedAt: Date | null;
+        _count?: { responses: number };
+        questions?: any[];
       }) => ({
         _id: form.id,
         title: form.title,
@@ -49,9 +51,9 @@ export async function GET(req: NextRequest) {
         updatedAt: form.updatedAt,
         publishedAt: form.publishedAt,
         _count: {
-          responses: form._count.responses,
+          responses: form._count?.responses || 0,
         },
-        questions: form.questions,
+        questions: form.questions || [],
       })
     );
 

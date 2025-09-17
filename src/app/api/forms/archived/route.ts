@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
         createdAt: Date;
         updatedAt: Date;
         archivedAt: Date | null;
+        publishedAt: Date | null;
       }) => ({
         _id: form.id,
         title: form.title,
