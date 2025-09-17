@@ -30,6 +30,8 @@ export default function CreateFormButton({ label }: Props) {
     try {
       setIsLoading(true);
 
+      console.log("Starting form generation with:", { prompt, topics });
+
       // Call the form generation API endpoint
       const response = await fetch("/api/forms/generate", {
         method: "POST",
@@ -39,22 +41,28 @@ export default function CreateFormButton({ label }: Props) {
         body: JSON.stringify({ prompt, topics }),
       });
 
+      console.log("Form generation response:", response);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("Form generation API error:", {
           status: response.status,
           statusText: response.statusText,
           errorData,
-          url: response.url
+          url: response.url,
         });
-        
+
         // Provide more specific error messages based on status codes
         if (response.status === 401) {
           throw new Error("Authentication failed. Please sign in again.");
         } else if (response.status === 500) {
-          throw new Error(errorData.error || "Server error occurred. Please try again later.");
+          throw new Error(
+            errorData.error || "Server error occurred. Please try again later."
+          );
         } else {
-          throw new Error(errorData.error || `Failed to create form (${response.status})`);
+          throw new Error(
+            errorData.error || `Failed to create form (${response.status})`
+          );
         }
       }
 
@@ -78,7 +86,7 @@ export default function CreateFormButton({ label }: Props) {
           status: saveResponse.status,
           statusText: saveResponse.statusText,
           saveErrorData,
-          url: saveResponse.url
+          url: saveResponse.url,
         });
         throw new Error(saveErrorData.error || "Failed to save form");
       }
@@ -94,19 +102,24 @@ export default function CreateFormButton({ label }: Props) {
       setShowPromptModal(false);
     } catch (error) {
       console.error("Error creating form:", error);
-      
+
       // Handle specific error types
       let errorMessage = "Failed to create form. Please try again.";
-      
+
       if (error instanceof Error) {
         // Check for JWT/authentication related errors
-        if (error.message.includes("JWT") || error.message.includes("authentication") || error.message.includes("convex")) {
-          errorMessage = "Authentication error. Please refresh the page and try again.";
+        if (
+          error.message.includes("JWT") ||
+          error.message.includes("authentication") ||
+          error.message.includes("convex")
+        ) {
+          errorMessage =
+            "Authentication error. Please refresh the page and try again.";
         } else {
           errorMessage = error.message;
         }
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
