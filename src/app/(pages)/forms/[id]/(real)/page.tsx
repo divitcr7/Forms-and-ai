@@ -38,10 +38,10 @@ export async function generateMetadata({
 }
 
 export default async function FormPage({ params }: FormPageProps) {
-  const formId = (await params).id as Id<"forms">;
+  const formId = (await params).id;
 
   try {
-    const form = await fetchQuery(api.forms.getPublicForm, { formId });
+    const form = await DatabaseService.getFormByIdOrSlug(formId);
 
     if (!form) {
       return (
@@ -53,14 +53,20 @@ export default async function FormPage({ params }: FormPageProps) {
       );
     }
 
-    const formFields = await fetchQuery(api.formFields.getFormFields, {
-      formId,
-    });
+    if (!form.isPublished) {
+      return (
+        <BlankPage
+          title="Form Not Available"
+          description="This form is not currently published."
+          errorType="not-found"
+        />
+      );
+    }
 
     return (
       <FullscreenFormRenderer
         form={form}
-        formFields={formFields}
+        formFields={form.questions}
         isPreview={false}
       />
     );
