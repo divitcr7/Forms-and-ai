@@ -1,9 +1,7 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { notFound, useParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,15 +10,53 @@ import { toast } from "sonner";
 import { FormTabs } from "@/components/forms/tabs/form-tabs";
 import { PublishFormButton } from "@/components/forms/publish/publish-form-button";
 
+interface Form {
+  _id: string;
+  title: string;
+  description?: string;
+  slug: string;
+  status: string;
+  isPublished: boolean;
+  isArchived: boolean;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  questions: any[];
+}
+
 export default function FormPage() {
   const router = useRouter();
-  const formId = useParams().id as Id<"forms">;
+  const formId = useParams().id as string;
 
-  const form = useQuery(api.forms.getForm, { formId });
-  const formFields = useQuery(api.formFields.getFormFields, { formId }) || [];
-  const updateForm = useMutation(api.forms.updateForm);
+  const [form, setForm] = useState<Form | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
-  if (form === undefined) {
+  useEffect(() => {
+    const fetchForm = async () => {
+      try {
+        const response = await fetch(`/api/forms/${formId}`);
+        if (response.ok) {
+          const formData = await response.json();
+          setForm(formData);
+        } else if (response.status === 404) {
+          router.push("/dashboard/forms");
+          toast.error("Form not found");
+        } else {
+          toast.error("Failed to load form");
+        }
+      } catch (error) {
+        console.error("Error fetching form:", error);
+        toast.error("Failed to load form");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForm();
+  }, [formId, router]);
+
+  if (loading) {
     return (
       <div className="py-8 px-4 space-y-8">
         <div>
@@ -38,8 +74,23 @@ export default function FormPage() {
     );
   }
 
-  if (form === null) {
-    notFound();
+  if (!form) {
+    return (
+      <div className="py-8 px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Form not found</h1>
+          <p className="text-muted-foreground mt-2">
+            This form doesn't exist or you don't have access to it.
+          </p>
+          <Button
+            className="mt-4"
+            onClick={() => router.push("/dashboard/forms")}
+          >
+            Back to Forms
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const copyShareLink = () => {
@@ -49,20 +100,43 @@ export default function FormPage() {
   };
 
   const handlePublishToggle = async () => {
+    if (updating) return;
+
     try {
+      setUpdating(true);
       const newStatus = form.status === "published" ? "draft" : "published";
-      await updateForm({
-        formId,
-        status: newStatus,
+
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
       });
-      toast.success(
-        newStatus === "published"
-          ? "Form published successfully! It's now accessible to the public."
-          : "Form unpublished. It's now in draft mode."
-      );
+
+      if (response.ok) {
+        setForm((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: newStatus,
+                isPublished: newStatus === "published",
+              }
+            : null
+        );
+        toast.success(
+          newStatus === "published"
+            ? "Form published successfully! It's now accessible to the public."
+            : "Form unpublished. It's now in draft mode."
+        );
+      } else {
+        throw new Error("Failed to update form status");
+      }
     } catch (error) {
       console.error("Error updating form status:", error);
       toast.error("Failed to update form status. Please try again.");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -89,6 +163,7 @@ export default function FormPage() {
           <PublishFormButton
             isPublished={isPublished}
             onPublishToggle={handlePublishToggle}
+            disabled={updating}
           />
 
           <Button variant="outline" size="sm" onClick={copyShareLink}>
@@ -128,7 +203,7 @@ export default function FormPage() {
         )}
       </div>
 
-      <FormTabs form={form} formFields={formFields} formId={formId} />
+      <FormTabs form={form} formFields={form.questions} formId={formId} />
     </div>
   );
 }

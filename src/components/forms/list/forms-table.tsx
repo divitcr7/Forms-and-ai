@@ -29,6 +29,13 @@ export function FormsTable() {
   const [formToArchive, setFormToArchive] = React.useState<string | null>(null);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = React.useState(false);
 
+  console.log(
+    "FormsTable component rendered, forms:",
+    forms.length,
+    "loading:",
+    loading
+  );
+
   const navigateToFormEditPage = (formId: string) => {
     router.push(`/dashboard/forms/${formId}`);
   };
@@ -84,7 +91,22 @@ export function FormsTable() {
       <div className="space-y-4">
         <FormTableHeader />
         <div className="flex items-center justify-center p-8">
-          <div className="text-muted-foreground">Loading forms...</div>
+          <div className="text-muted-foreground">
+            Loading forms... (Component is working)
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (forms.length === 0) {
+    return (
+      <div className="space-y-4">
+        <FormTableHeader />
+        <div className="flex items-center justify-center p-8">
+          <div className="text-muted-foreground">
+            No forms found. (API returned empty array)
+          </div>
         </div>
       </div>
     );

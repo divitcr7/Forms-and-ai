@@ -125,6 +125,16 @@ export class DatabaseService {
     });
   }
 
+  static async unpublishForm(id: string) {
+    return await prisma.form.update({
+      where: { id },
+      data: {
+        isPublished: false,
+        publishedAt: null,
+      },
+    });
+  }
+
   static async archiveForm(id: string) {
     return await prisma.form.update({
       where: { id },
