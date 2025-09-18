@@ -31,6 +31,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { prompt, topics } = validationResult.data;
+
+    console.log("Starting form generation with prompt:", prompt);
+    console.log(
+      "Google API key available:",
+      !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    );
+
     const generatedForm = await generateFormQuestions(prompt, topics);
 
     console.log("Generated form data:", generatedForm);
