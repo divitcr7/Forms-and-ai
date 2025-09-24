@@ -61,8 +61,24 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error saving form:", error);
+    console.error(
+      "Error details:",
+      error instanceof Error ? error.message : String(error)
+    );
+
+    // Check if it's a database connection error
+    if (error instanceof Error && error.message.includes("DATABASE_URL")) {
+      return NextResponse.json(
+        { error: "Database configuration error. Please contact support." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to save form. Please try again later." },
+      {
+        error: "Failed to save form. Please try again later.",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
