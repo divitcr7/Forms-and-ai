@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { DatabaseService } from "@/lib/db-service";
+import { SimpleDbService } from "@/lib/simple-db-service";
 import { z } from "zod";
+
+// Use simple storage in production for reliability
+const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
 
 const saveFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     // Ensure user exists in database and get the user record
     console.log("Creating/updating user with Clerk ID:", userId);
-    const user = await DatabaseService.createOrUpdateUser(userId, {});
+    const user = await DbService.createOrUpdateUser(userId, {});
     console.log("User created/found:", user);
 
     // Create the form using the user's database ID
@@ -49,7 +53,7 @@ export async function POST(req: NextRequest) {
       "and data:",
       validationResult.data
     );
-    const form = await DatabaseService.createForm(user.id, {
+    const form = await DbService.createForm(user.id, {
       ...validationResult.data,
       description: validationResult.data.description || "",
     } as any);

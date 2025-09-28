@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DatabaseService } from "@/lib/db-service";
+import { SimpleDbService } from "@/lib/simple-db-service";
 import { z } from "zod";
+
+// Use simple storage in production for reliability
+const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
 
 const submitFormSchema = z.object({
   answers: z.array(
@@ -19,7 +23,7 @@ export async function POST(
     const { id } = await params;
 
     // Get form by ID (can be either form ID or slug)
-    const form = await DatabaseService.getFormByIdOrSlug(id);
+    const form = await DbService.getFormByIdOrSlug(id);
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
@@ -50,7 +54,7 @@ export async function POST(
     const userAgent = req.headers.get("user-agent") || "unknown";
 
     // Create the response
-    const response = await DatabaseService.createFormResponse(
+    const response = await DbService.createFormResponse(
       form.id,
       validationResult.data.answers,
       { ipAddress, userAgent }

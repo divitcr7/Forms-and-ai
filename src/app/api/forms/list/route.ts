@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { DatabaseService } from "@/lib/db-service";
+import { SimpleDbService } from "@/lib/simple-db-service";
+
+// Use simple storage in production for reliability
+const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,12 +22,12 @@ export async function GET(req: NextRequest) {
 
     // Ensure user exists in database
     console.log("Creating/updating user:", userId);
-    const user = await DatabaseService.createOrUpdateUser(userId, {});
+    const user = await DbService.createOrUpdateUser(userId, {});
     console.log("User found/created:", user);
 
     // Get user's forms
     console.log("Fetching forms for user:", user.id);
-    const forms = await DatabaseService.getUserForms(user.id);
+    const forms = await DbService.getUserForms(user.id);
     console.log("Forms found:", forms.length);
 
     // Transform the data to match the expected format
