@@ -22,13 +22,10 @@ export const metadata: Metadata = {
   description:
     "Create forms by simply writing prompts. Share a link and let users answer naturally through a chat interface.",
   keywords: "AI, forms, chat interface, user experience",
-  authors: [{ name: "Sreeman", url: "https://github.com/Sreeman45" }],
+  authors: [{ name: "Divit Patidar", url: "https://github.com/divitcr7" }],
   creator: "Sreeman",
   openGraph: {
     title: "formsAI | AI-Powered Form Builder",
-    description:
-      "Create forms by simply writing prompts. Share a link and let users answer naturally through a chat interface.",
-    url: "https://formaxis.dev",
     siteName: "formsAi",
   },
 };

@@ -51,7 +51,7 @@ export function FAQ() {
             conversational forms. Can&apos;t find the answer you&apos;re looking
             for?&nbsp;
             <a
-              href="https://github.com/Sreeman45"
+              href="https://github.com/divitcr7"
               className="text-primary/95 underline"
               target="_blank"
               rel="noopener noreferrer"

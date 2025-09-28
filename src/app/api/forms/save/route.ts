@@ -65,19 +65,69 @@ export async function POST(req: NextRequest) {
       "Error details:",
       error instanceof Error ? error.message : String(error)
     );
+    console.error(
+      "Stack trace:",
+      error instanceof Error ? error.stack : "No stack trace"
+    );
 
-    // Check if it's a database connection error
-    if (error instanceof Error && error.message.includes("DATABASE_URL")) {
-      return NextResponse.json(
-        { error: "Database configuration error. Please contact support." },
-        { status: 500 }
-      );
+    // Check for specific error types
+    if (error instanceof Error) {
+      // Database connection errors
+      if (
+        error.message.includes("DATABASE_URL") ||
+        error.message.includes("connect ECONNREFUSED") ||
+        error.message.includes("ENOTFOUND") ||
+        error.message.includes("Connection terminated")
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Database connection error. Please check your DATABASE_URL environment variable.",
+            details:
+              process.env.NODE_ENV === "development"
+                ? error.message
+                : "Database connectivity issue",
+          },
+          { status: 500 }
+        );
+      }
+
+      // Prisma client errors
+      if (error.message.includes("Prisma Client")) {
+        return NextResponse.json(
+          {
+            error:
+              "Database client error. The database may not be properly initialized.",
+            details:
+              process.env.NODE_ENV === "development"
+                ? error.message
+                : "Database client issue",
+          },
+          { status: 500 }
+        );
+      }
+
+      // Authentication errors
+      if (
+        error.message.includes("Unauthorized") ||
+        error.message.includes("JWT")
+      ) {
+        return NextResponse.json(
+          { error: "Authentication error. Please sign in again." },
+          { status: 401 }
+        );
+      }
     }
 
     return NextResponse.json(
       {
         error: "Failed to save form. Please try again later.",
-        details: error instanceof Error ? error.message : String(error),
+        details:
+          process.env.NODE_ENV === "development"
+            ? error instanceof Error
+              ? error.message
+              : String(error)
+            : "Internal server error",
       },
       { status: 500 }
     );

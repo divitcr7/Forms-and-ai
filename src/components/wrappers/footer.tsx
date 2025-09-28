@@ -6,15 +6,15 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} formsAI. All rights reserved. •
-            Built by{" "}
+            © {new Date().getFullYear()} formsAI. All rights reserved. • Built
+            by{" "}
             <a
-              href="https://github.com/Sreeman45"
+              href="https://github.com/divitcr7"
               target="_blank"
               rel="noopener noreferrer"
               className="text-orange-600 hover:underline font-medium"
             >
-              Sreeman
+              Divit Patidar
             </a>
           </p>
 
