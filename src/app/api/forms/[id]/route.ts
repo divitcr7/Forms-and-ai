@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { DatabaseService } from "@/lib/db-service";
+import { SimpleDbService } from "@/lib/simple-db-service";
+
+// Use simple storage in production for reliability
+const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
 
 export async function GET(
   req: NextRequest,
@@ -18,14 +22,14 @@ export async function GET(
     const { id } = await params;
 
     // Get form by ID or slug
-    const form = await DatabaseService.getFormByIdOrSlug(id);
+    const form = await DbService.getFormByIdOrSlug(id);
 
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
     // Check if user owns this form
-    const user = await DatabaseService.createOrUpdateUser(userId, {});
+    const user = await DbService.createOrUpdateUser(userId, {});
     if (form.userId !== user.id) {
       return NextResponse.json(
         { error: "Forbidden", details: "You don't have access to this form" },
@@ -42,26 +46,17 @@ export async function GET(
       status: form.isPublished ? "published" : "draft",
       isPublished: form.isPublished,
       isArchived: form.isArchived,
-      createdAt: form.createdAt.toISOString(),
-      updatedAt: form.updatedAt.toISOString(),
-      publishedAt: form.publishedAt?.toISOString(),
-      questions: form.questions.map(
-        (q: {
-          id: string;
-          content: string;
-          type: string;
-          required: boolean;
-          order: number;
-          options: string | null;
-        }) => ({
-          _id: q.id,
-          content: q.content,
-          type: q.type,
-          required: q.required,
-          order: q.order,
-          options: q.options,
-        })
-      ),
+      createdAt: form.createdAt instanceof Date ? form.createdAt.toISOString() : form.createdAt,
+      updatedAt: form.updatedAt instanceof Date ? form.updatedAt.toISOString() : form.updatedAt,
+      publishedAt: (form as any).publishedAt instanceof Date ? (form as any).publishedAt.toISOString() : (form as any).publishedAt || null,
+      questions: (form.questions || []).map((q: any) => ({
+        _id: q.id,
+        content: q.content,
+        type: q.type,
+        required: q.required,
+        order: q.order,
+        options: q.options || null,
+      })),
       _count: {
         responses: 0, // We'll add this later when we implement response counting
       },
@@ -94,14 +89,14 @@ export async function PATCH(
     const body = await req.json();
 
     // Get form by ID or slug
-    const form = await DatabaseService.getFormByIdOrSlug(id);
+    const form = await DbService.getFormByIdOrSlug(id);
 
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
     // Check if user owns this form
-    const user = await DatabaseService.createOrUpdateUser(userId, {});
+    const user = await DbService.createOrUpdateUser(userId, {});
     if (form.userId !== user.id) {
       return NextResponse.json(
         { error: "Forbidden", details: "You don't have access to this form" },
@@ -114,10 +109,10 @@ export async function PATCH(
       const isPublished = body.status === "published";
 
       if (isPublished) {
-        await DatabaseService.publishForm(form.id);
+        await DbService.publishForm(form.id);
       } else {
-        // For unpublishing, we'll add a method to DatabaseService
-        await DatabaseService.unpublishForm(form.id);
+        // For unpublishing, we'll add a method to DbService
+        await DbService.unpublishForm(form.id);
       }
     }
 

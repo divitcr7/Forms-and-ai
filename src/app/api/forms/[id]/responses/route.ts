@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { DatabaseService } from "@/lib/db-service";
+import { SimpleDbService } from "@/lib/simple-db-service";
+
+// Use simple storage in production for reliability
+const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
 
 export async function GET(
   req: NextRequest,
@@ -18,14 +22,14 @@ export async function GET(
     const { id } = await params;
 
     // Get the form to check ownership
-    const form = await DatabaseService.getFormByIdOrSlug(id);
+    const form = await DbService.getFormByIdOrSlug(id);
 
     if (!form) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
     // Get the user to check ownership
-    const user = await DatabaseService.createOrUpdateUser(userId, {});
+    const user = await DbService.createOrUpdateUser(userId, {});
 
     if (form.userId !== user.id) {
       return NextResponse.json(
@@ -38,32 +42,22 @@ export async function GET(
     }
 
     // Get responses
-    const responses = await DatabaseService.getFormResponses(form.id);
+    const responses = await DbService.getFormResponses(form.id);
 
     // Transform responses to match frontend expectations
-    const transformedResponses = responses.map(
-      (response: {
-        id: string;
-        submittedAt: Date;
-        answers: Array<{ questionId: string; value: string; question: any }>;
-        ipAddress: string | null;
-        userAgent: string | null;
-      }) => ({
-        _id: response.id,
-        formId: form.id,
-        respondentEmail: "Anonymous", // We're not collecting emails in the new system
-        submittedAt: response.submittedAt.toISOString(),
-        answers: response.answers.map(
-          (answer: { questionId: string; value: string; question: any }) => ({
-            questionId: answer.questionId,
-            value: answer.value,
-            question: answer.question,
-          })
-        ),
-        ipAddress: response.ipAddress,
-        userAgent: response.userAgent,
-      })
-    );
+    const transformedResponses = responses.map((response: any) => ({
+      _id: response.id,
+      formId: form.id,
+      respondentEmail: "Anonymous", // We're not collecting emails in the new system
+      submittedAt: response.submittedAt instanceof Date ? response.submittedAt.toISOString() : response.submittedAt,
+      answers: (response.answers || []).map((answer: any) => ({
+        questionId: answer.questionId,
+        value: answer.value,
+        question: answer.question || { content: "Question" },
+      })),
+      ipAddress: response.ipAddress,
+      userAgent: response.userAgent,
+    }));
 
     // Get analytics data
     const analytics = {
