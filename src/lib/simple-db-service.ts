@@ -42,9 +42,12 @@ export class SimpleDbService {
 
   static async getUserForms(userId: string, archived: boolean = false) {
     const forms = await simpleStorage.getUserForms(userId, archived);
-    // Add response count for compatibility
+    // Add response count for compatibility and ensure proper date types
     return forms.map(form => ({
       ...form,
+      createdAt: new Date(form.createdAt),
+      updatedAt: new Date(form.updatedAt),
+      publishedAt: null, // Simple storage doesn't track publish dates
       questions: form.questions,
       _count: {
         responses: 0, // We'll implement this later if needed
