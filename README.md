@@ -10,6 +10,7 @@
   <p align="center">
     <a href="#features">Features</a> •
     <a href="#demo">Demo</a> •
+    <a href="#screenshots">Screenshots</a> •
     <a href="#quick-start">Quick Start</a> •
     <a href="#tech-stack">Tech Stack</a> •
     <a href="#api-reference">API</a> •
@@ -83,6 +84,50 @@ Password: test@123
 4. **Publish**: Click "Publish Form" to make it live
 5. **Share**: Copy the shareable link and test the form
 6. **Analyze**: View responses in the dashboard
+
+## 📸 Screenshots
+
+### 🏠 Landing Page & Hero Section
+
+<div align="center">
+  <img src="docs/image1.png" alt="Landing Page" width="800"/>
+  <p><em>Beautiful landing page with modern design and clear value proposition</em></p>
+</div>
+
+### 🤖 AI Form Generation
+
+<div align="center">
+  <img src="docs/image2.png" alt="AI Form Generation" width="800"/>
+  <p><em>AI-powered form generation from natural language prompts</em></p>
+</div>
+
+### 📝 Form Builder & Editor
+
+<div align="center">
+  <img src="docs/image4.png" alt="Form Builder" width="800"/>
+  <p><em>Intuitive drag-and-drop form builder with real-time preview</em></p>
+</div>
+
+### 💬 Chat-Style Form Interface
+
+<div align="center">
+  <img src="docs/image5.png" alt="Chat Interface" width="800"/>
+  <p><em>Engaging conversational form experience for better user engagement</em></p>
+</div>
+
+### 📊 Dashboard & Analytics
+
+<div align="center">
+  <img src="docs/image6.png" alt="Dashboard" width="800"/>
+  <p><em>Comprehensive dashboard with form management and analytics</em></p>
+</div>
+
+### 📈 Response Management
+
+<div align="center">
+  <img src="docs/image7.png" alt="Response Management" width="800"/>
+  <p><em>Detailed response tracking and analysis tools</em></p>
+</div>
 
 ## 🚀 Quick Start
 
@@ -220,7 +265,7 @@ Body: {
   prompt: string;
 }
 Response: {
-  (title, description, questions);
+  title, description, questions;
 }
 ```
 
@@ -229,10 +274,10 @@ Response: {
 ```typescript
 POST / api / forms / save;
 Body: {
-  (title, description, questions);
+  title, description, questions;
 }
 Response: {
-  (formId, slug);
+  formId, slug;
 }
 ```
 
@@ -258,7 +303,7 @@ Body: {
   answers: Array<{ questionId; value }>;
 }
 Response: {
-  (responseId, message);
+  responseId, message;
 }
 ```
 
@@ -291,14 +336,17 @@ Modify the chat interface in `src/components/forms/public/`
 ### Common Issues
 
 1. **"No JWT template exists with name: convex"**
+
    - This error appears if you have Convex configuration but aren't using it
    - Safe to ignore or remove Convex files
 
 2. **AI Generation Fails**
+
    - Check your Google AI API key is valid
    - Ensure you have API quota remaining
 
 3. **Database Errors**
+
    - Run `npx prisma migrate reset` to reset the database
    - Check `DATABASE_URL` in `.env.local`
 
