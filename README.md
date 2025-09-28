@@ -69,16 +69,9 @@ Forms & AI is a modern, full-stack form builder that leverages artificial intell
 
 ## 🎬 Demo
 
-### Test Credentials
-
-```
-Email: test@gmail.com
-Password: test@123
-```
-
 ### Live Demo Flow
 
-1. **Sign In**: Use the test credentials above
+1. **Sign Up**: Create your account with Clerk authentication
 2. **Create a Form**: Click "New Form" and enter a prompt like "Create an internship application form for CS graduates"
 3. **Customize**: Edit questions, reorder fields, or add new ones
 4. **Publish**: Click "Publish Form" to make it live

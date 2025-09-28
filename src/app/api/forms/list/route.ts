@@ -4,7 +4,8 @@ import { DatabaseService } from "@/lib/db-service";
 import { SimpleDbService } from "@/lib/simple-db-service";
 
 // Use simple storage in production for reliability
-const DbService = process.env.NODE_ENV === 'production' ? SimpleDbService : DatabaseService;
+const DbService =
+  process.env.NODE_ENV === "production" ? SimpleDbService : DatabaseService;
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,35 +32,21 @@ export async function GET(req: NextRequest) {
     console.log("Forms found:", forms.length);
 
     // Transform the data to match the expected format
-    const transformedForms = forms.map(
-      (form: {
-        id: string;
-        title: string;
-        description: string | null;
-        slug: string;
-        isPublished: boolean;
-        isArchived: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-        publishedAt: Date | null;
-        _count?: { responses: number };
-        questions?: any[];
-      }) => ({
-        _id: form.id,
-        title: form.title,
-        description: form.description,
-        slug: form.slug,
-        isPublished: form.isPublished,
-        isArchived: form.isArchived,
-        createdAt: form.createdAt,
-        updatedAt: form.updatedAt,
-        publishedAt: form.publishedAt,
-        _count: {
-          responses: form._count?.responses || 0,
-        },
-        questions: form.questions || [],
-      })
-    );
+    const transformedForms = forms.map((form: any) => ({
+      _id: form.id,
+      title: form.title,
+      description: form.description,
+      slug: form.slug,
+      isPublished: form.isPublished,
+      isArchived: form.isArchived,
+      createdAt: form.createdAt,
+      updatedAt: form.updatedAt,
+      publishedAt: form.publishedAt || null,
+      _count: {
+        responses: form._count?.responses || 0,
+      },
+      questions: form.questions || [],
+    }));
 
     return NextResponse.json(transformedForms);
   } catch (error) {
